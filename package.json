@@ -18,7 +18,8 @@
     "test:browser:chrome": "node scripts/stable-chrome-smoke.mjs",
     "test:browser:chrome:package": "node scripts/package-stable-chrome-smoke.mjs",
     "test:coverage": "node --experimental-test-coverage --test --test-coverage-lines=87 --test-coverage-branches=80 --test-coverage-functions=83",
-    "validate": "npm run lint && npm test && npm run check:extension"
+    "validate": "npm run lint && npm test && npm run check:extension",
+    "version:set": "node scripts/set-version.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

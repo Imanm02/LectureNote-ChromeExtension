@@ -43,6 +43,17 @@ Chrome 116 or newer is required. The project does not currently have a published
 7. Choose the extracted folder that contains `manifest.json`.
 8. Pin **Lecture Notes** from Chrome's extensions menu if you want quick access.
 
+Verify the downloaded ZIP and checksum from the folder that contains both files. Replace `X.Y.Z` with the release version:
+
+```powershell
+$archive = "lecture-notes-X.Y.Z.zip"
+$expected = (Get-Content "$archive.sha256").Split()[0].ToLowerInvariant()
+$actual = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($actual -ne $expected) { throw "Checksum mismatch" }
+```
+
+On macOS, run `shasum -a 256 -c lecture-notes-X.Y.Z.zip.sha256`. On Linux, run `sha256sum -c lecture-notes-X.Y.Z.zip.sha256`.
+
 To install the current source instead, clone the repository and choose that folder in step 7:
 
    ```bash
@@ -145,6 +156,8 @@ npx playwright install chromium
 npm run test:browser
 ```
 
+On a new Debian or Ubuntu test host, `npx playwright install --with-deps chromium` also installs the required system packages.
+
 The stable Chrome action test also requires a current Chrome installation. It uses a new temporary profile, loads the unpacked extension through Chrome DevTools Protocol, and removes the profile afterward. It never opens the regular Chrome profile.
 
 Available checks:
@@ -166,6 +179,16 @@ Available checks:
 | `npm run release:check` | Run the local release gate against the source and package in Chromium and stable Chrome |
 
 The release gate creates `dist/lecture-notes-<version>.zip` and its SHA-256 file. The generated `dist/` directory is not committed. This repository does not use GitHub Actions, so release checks run on a trusted local machine. The Chromium run exercises the wider product flow. The stable Chrome run triggers the real toolbar popup, captures a selection from a focused embedded frame, saves it, and checks local storage for both the source and extracted package.
+
+Store artwork is committed, so it is present after a fresh clone. To regenerate the icons and promotional image, install the pinned Pillow release and run the asset scripts:
+
+```bash
+python -m pip install --requirement requirements-artwork.txt
+python scripts/generate_icons.py
+node scripts/render_store_assets.mjs
+```
+
+Run `npm run store:screenshots` to rebuild the four Store screenshots from the packaged extension. Review every changed image before committing it.
 
 ## Data limits
 

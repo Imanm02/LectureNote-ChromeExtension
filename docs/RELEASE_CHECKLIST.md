@@ -8,15 +8,21 @@ Lecture Notes does not use GitHub Actions. Complete every release check on a tru
 - [ ] Fetch `origin` and confirm local `main` matches `origin/main`.
 - [ ] Use a Node version accepted by `package.json`.
 - [ ] Run `npm ci` from the committed lockfile.
+- [ ] Install GitHub CLI, run `gh auth status`, and confirm it is signed in to the release account.
 - [ ] Confirm the release contains no credentials, personal data, browser profiles, logs, or test downloads.
 - [ ] Review open dependency alerts and pull requests.
 
 ## Set the version
 
-- [ ] Choose the release version and update both `manifest.json` and `package.json`.
-- [ ] Update `package-lock.json` through npm when the package version changes.
+- [ ] Choose the release version and run `npm run version:set -- X.Y.Z` to update `manifest.json`, `package.json`, and `package-lock.json` together.
 - [ ] Move the finished entries in `CHANGELOG.md` from Unreleased to a dated version section.
 - [ ] Confirm `README.md`, `PRIVACY.md`, and `docs/STORE_LISTING.md` describe the shipped behavior.
+
+Confirm the three recorded versions match:
+
+```bash
+node -e "const fs=require('node:fs'); for (const file of ['manifest.json','package.json','package-lock.json']) console.log(file, JSON.parse(fs.readFileSync(file)).version)"
+```
 
 Do not create the tag until the exact package has passed the checks below.
 
@@ -26,7 +32,7 @@ Do not create the tag until the exact package has passed the checks below.
 npm run release:check
 ```
 
-- [ ] Install Playwright Chromium first with `npx playwright install chromium` when needed.
+- [ ] Install Playwright Chromium first with `npx playwright install chromium` when needed. On Debian or Ubuntu, use `npx playwright install --with-deps chromium` on a new test host.
 - [ ] Install or update stable Chrome before running its action-popup test.
 - [ ] Confirm the release gate passes the dependency audit, lint, coverage floors, extension validator, browser smoke tests, package creation, and package validator.
 - [ ] Confirm the stable Chrome test triggers the real toolbar popup and verifies focused-frame selection capture, source context, saving, and local storage against the source extension.
@@ -124,6 +130,27 @@ The package allowlist excludes `.git`, `.github`, `node_modules`, tests, scripts
 - [ ] Create an annotated Git tag for the tested commit without rewriting history.
 - [ ] Create the GitHub release with the changelog entry, ZIP, and SHA-256 checksum.
 - [ ] Verify the tag, release files, and published extension version after upload.
+
+After the release commit is pushed, replace `X.Y.Z` in these commands. Put the release notes in the ignored `dist/release-notes-X.Y.Z.md` file first.
+
+```bash
+git tag -a vX.Y.Z -m "Lecture Notes X.Y.Z"
+git push origin vX.Y.Z
+gh release create vX.Y.Z dist/lecture-notes-X.Y.Z.zip dist/lecture-notes-X.Y.Z.zip.sha256 --repo Imanm02/LectureNote-ChromeExtension --verify-tag --title "Lecture Notes X.Y.Z" --notes-file dist/release-notes-X.Y.Z.md
+gh release view vX.Y.Z --repo Imanm02/LectureNote-ChromeExtension
+gh release download vX.Y.Z --repo Imanm02/LectureNote-ChromeExtension --dir dist/release-verify --clobber
+```
+
+Verify the downloaded asset in `dist/release-verify` against its downloaded checksum:
+
+```powershell
+$archive = "dist/release-verify/lecture-notes-X.Y.Z.zip"
+$expected = (Get-Content "$archive.sha256").Split()[0].ToLowerInvariant()
+$actual = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($actual -ne $expected) { throw "Checksum mismatch" }
+```
+
+On macOS, use `shasum -a 256 -c lecture-notes-X.Y.Z.zip.sha256` inside `dist/release-verify`. On Linux, use `sha256sum -c lecture-notes-X.Y.Z.zip.sha256` there.
 
 ## After release
 
