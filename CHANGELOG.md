@@ -6,6 +6,23 @@ This file records user-facing changes to Lecture Notes.
 
 No user-facing changes yet.
 
+## 2.1.3 - 2026-11-05
+
+### Maintenance
+
+- Patched the vulnerable transitive development dependency while keeping the shipped extension code unchanged.
+- Removed scheduled dependency-update runs so repository checks remain local.
+- Added a tested command that updates the manifest, package, and lockfile versions together.
+- Documented release upload, checksum verification, Linux browser setup, and Store artwork regeneration.
+
+### Validation
+
+- Added success and failure-path tests for the version command.
+- Passed 337 automated tests with 87.22% line coverage, 80.90% branch coverage, and 89.79% function coverage.
+- Passed the dependency audit, ESLint, manifest validation, Chromium product smoke tests, stable Chrome action tests, package validation, and both packaged browser tests.
+- Validated the deterministic 23-file `lecture-notes-2.1.3.zip` package.
+- Recorded SHA-256 `7a28849de778e3c25ac96689e22453171929a4c40ffb7c740d330013927c21a2`.
+
 ## 2.1.2 - 2026-10-29
 
 ### Fixed

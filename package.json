@@ -1,6 +1,6 @@
 {
   "name": "lecture-note-chrome-extension",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "private": true,
   "type": "module",
   "packageManager": "npm@11.12.1",
