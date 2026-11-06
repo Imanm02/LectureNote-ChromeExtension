@@ -590,6 +590,63 @@ test("rejects a stale reviewed data reset", async () => {
   assert.deepEqual(storage.values, originalValues);
 });
 
+test("resets a reviewed unrecoverable state", async () => {
+  const storage = memoryStorage({
+    [STORAGE_KEYS.state]: "broken",
+    [STORAGE_KEYS.dataEpoch]: "damaged-epoch",
+    [STORAGE_KEYS.dataConsent]: {
+      version: 1,
+      epoch: "damaged-epoch",
+      accepted: true,
+    },
+    [STORAGE_KEYS.pendingCaptures]: { version: 1, captures: [] },
+    [STORAGE_KEYS.helpSeen]: true,
+  });
+
+  const reset = await resetAllData(storage, {
+    expectedEpoch: "damaged-epoch",
+    expectedUnrecoverableState: true,
+    epochFactory: () => "recovered-epoch",
+    lockManager: null,
+  });
+
+  assert.equal(reset.epoch, "recovered-epoch");
+  assert.equal(reset.state.revision, 1);
+  assert.deepEqual(reset.state.notes, []);
+  assert.equal(storage.values[STORAGE_KEYS.dataEpoch], "recovered-epoch");
+  assert.equal(STORAGE_KEYS.dataConsent in storage.values, false);
+  assert.equal(STORAGE_KEYS.pendingCaptures in storage.values, false);
+  assert.equal(STORAGE_KEYS.helpSeen in storage.values, false);
+});
+
+test("does not clear a state that can be recovered or upgraded", async () => {
+  const candidates = [
+    createEmptyState(),
+    { schemaVersion: SCHEMA_VERSION, revision: 2, notes: [null], trash: [] },
+    { schemaVersion: SCHEMA_VERSION + 1, revision: 3, notes: [], trash: [] },
+  ];
+
+  for (const [index, candidate] of candidates.entries()) {
+    const storage = memoryStorage({
+      [STORAGE_KEYS.state]: candidate,
+      [STORAGE_KEYS.dataEpoch]: `guarded-epoch-${index}`,
+      [STORAGE_KEYS.helpSeen]: true,
+    });
+    const originalValues = structuredClone(storage.values);
+
+    await assert.rejects(
+      () => resetAllData(storage, {
+        expectedEpoch: `guarded-epoch-${index}`,
+        expectedUnrecoverableState: true,
+        epochFactory: () => `cleared-epoch-${index}`,
+        lockManager: null,
+      }),
+      { code: "state-conflict" },
+    );
+    assert.deepEqual(storage.values, originalValues);
+  }
+});
+
 test("rejects stale library and draft writers after a reset", async () => {
   const originalState = {
     ...createEmptyState(),

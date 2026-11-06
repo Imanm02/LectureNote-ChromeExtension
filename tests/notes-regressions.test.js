@@ -115,6 +115,8 @@ test("keeps state actions disabled after load failure and supports retry", async
   assert.equal(documentValue.getElementById("resultSummary").textContent, "Library unavailable");
   assert.match(documentValue.getElementById("libraryStatus").textContent, /Storage read blocked/u);
   assert.equal(documentValue.getElementById("retryLoadButton").hidden, false);
+  assert.equal(documentValue.getElementById("clearUnrecoverableDataButton").hidden, true);
+  assert.equal(documentValue.getElementById("clearUnrecoverableDataButton").disabled, true);
   assert.equal(documentValue.getElementById("notesList").inert, true);
   for (const identifier of [
     "newNoteButton",
@@ -143,6 +145,76 @@ test("keeps state actions disabled after load failure and supports retry", async
   assert.equal(documentValue.getElementById("notesList").inert, false);
   assert.equal(documentValue.getElementById("newNoteButton").disabled, false);
   assert.equal(documentValue.querySelectorAll(".note-card").length, 1);
+});
+
+test("clears a confirmed unrecoverable local state", async (t) => {
+  const storage = memoryStorage({
+    [STORAGE_KEYS.state]: "broken",
+    [STORAGE_KEYS.dataEpoch]: "damaged-ui-epoch",
+    [STORAGE_KEYS.pendingCaptures]: { version: 1, captures: [] },
+    [STORAGE_KEYS.helpSeen]: true,
+  });
+  const setup = await setupLibrary(t, [], storage);
+  const { controller, documentValue } = setup;
+  const clearDamaged = documentValue.getElementById("clearUnrecoverableDataButton");
+
+  assert.equal(controller.getState(), undefined);
+  assert.equal(clearDamaged.hidden, false);
+  assert.equal(clearDamaged.disabled, false);
+  assert.equal(documentValue.getElementById("retryLoadButton").hidden, false);
+  assert.equal(documentValue.getElementById("clearLocalDataButton").disabled, true);
+
+  clearDamaged.click();
+  assert.equal(documentValue.getElementById("resetDialog").open, true);
+  assert.match(documentValue.getElementById("resetMessage").textContent, /cannot be opened/u);
+  assert.equal(documentValue.getElementById("resetExportButton").hidden, true);
+
+  const confirmation = documentValue.getElementById("resetConfirmationInput");
+  confirmation.value = "DELETE";
+  confirmation.dispatchEvent(new documentValue.defaultView.Event("input", { bubbles: true }));
+  submit(documentValue, "resetForm");
+  await waitFor(() => documentValue.getElementById("dataConsentDialog").open);
+
+  assert.equal(controller.getState(), undefined);
+  assert.equal(storage.values[STORAGE_KEYS.state].revision, 1);
+  assert.deepEqual(storage.values[STORAGE_KEYS.state].notes, []);
+  assert.notEqual(storage.values[STORAGE_KEYS.dataEpoch], "damaged-ui-epoch");
+  assert.equal(STORAGE_KEYS.pendingCaptures in storage.values, false);
+  assert.equal(STORAGE_KEYS.helpSeen in storage.values, false);
+});
+
+test("keeps repaired data when a damaged-state review is stale", async (t) => {
+  const storage = memoryStorage({
+    [STORAGE_KEYS.state]: "broken",
+    [STORAGE_KEYS.dataEpoch]: "repaired-ui-epoch",
+  });
+  const setup = await setupLibrary(t, [], storage);
+  const { controller, documentValue } = setup;
+
+  documentValue.getElementById("clearUnrecoverableDataButton").click();
+  const repairedState = {
+    ...createEmptyState(),
+    revision: 7,
+    notes: [note("repaired", "Recovered outside this page")],
+  };
+  storage.values[STORAGE_KEYS.state] = repairedState;
+
+  const confirmation = documentValue.getElementById("resetConfirmationInput");
+  confirmation.value = "DELETE";
+  confirmation.dispatchEvent(new documentValue.defaultView.Event("input", { bubbles: true }));
+  submit(documentValue, "resetForm");
+  await waitFor(() => controller.getState()?.notes.length === 1);
+
+  assert.deepEqual(storage.values[STORAGE_KEYS.state], repairedState);
+  assert.equal(storage.values[STORAGE_KEYS.dataEpoch], "repaired-ui-epoch");
+  assert.equal(documentValue.getElementById("resetDialog").open, true);
+  assert.equal(documentValue.getElementById("resetExportButton").hidden, false);
+  assert.equal(confirmation.value, "");
+  assert.equal(
+    documentValue.getElementById("resetMessage").textContent,
+    "This will clear 1 active note and 0 Trash entries from this Chrome profile.",
+  );
+  assert.match(documentValue.getElementById("resetStatus").textContent, /changed/u);
 });
 
 test("rejects a library read when data resets without a storage event", async (t) => {

@@ -578,6 +578,10 @@ test("keeps active limits and identifiers separate from persistent Trash", () =>
 
 test("does not recover state written by a newer schema", () => {
   assert.throws(
+    () => recoverState("broken"),
+    { code: "state-unrecoverable" },
+  );
+  assert.throws(
     () => recoverState({ schemaVersion: 3, revision: 1, notes: [], trash: [] }),
     { code: "schema-version" },
   );

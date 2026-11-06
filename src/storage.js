@@ -521,6 +521,7 @@ export async function resetAllData(
     epochFactory = () => crypto.randomUUID(),
     expectedEpoch,
     expectedRevision,
+    expectedUnrecoverableState = false,
   } = {},
 ) {
   const area = getStorage(storage);
@@ -539,6 +540,23 @@ export async function resetAllData(
     const currentRevision = Number.isSafeInteger(storedRevision) && storedRevision >= 0
       ? storedRevision
       : 0;
+    if (expectedUnrecoverableState) {
+      let stateIsUnrecoverable = false;
+      if (stored[STORAGE_KEYS.state] !== undefined) {
+        try {
+          recoverState(stored[STORAGE_KEYS.state]);
+        } catch (error) {
+          stateIsUnrecoverable = error instanceof ValidationError &&
+            error.code === "state-unrecoverable";
+        }
+      }
+      if (!stateIsUnrecoverable) {
+        throw new ValidationError(
+          "The damaged note data changed after the reset was reviewed.",
+          "state-conflict",
+        );
+      }
+    }
     if (
       expectedRevision !== undefined &&
       (!Number.isSafeInteger(expectedRevision) || expectedRevision < 0)

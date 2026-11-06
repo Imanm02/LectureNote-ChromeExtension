@@ -102,6 +102,7 @@ function libraryElements(documentValue) {
     activeFilterSummary: requiredElement(documentValue, "activeFilterSummary"),
     summary: requiredElement(documentValue, "resultSummary"),
     status: requiredElement(documentValue, "libraryStatus"),
+    clearUnrecoverableData: requiredElement(documentValue, "clearUnrecoverableDataButton"),
     retryLoad: requiredElement(documentValue, "retryLoadButton"),
     editorDraftRecovery: requiredElement(documentValue, "editorDraftRecovery"),
     editorDraftMessage: requiredElement(documentValue, "editorDraftMessage"),
@@ -333,6 +334,7 @@ export async function initLibrary({
   let resetExportInFlight = false;
   let resetEventsSuppressed = false;
   let resetOutcomeUnknown = false;
+  let unrecoverableStateResetAvailable = false;
   let resetReturnFocus = null;
   let courseSignature = "";
   let managedCourseSignature = "";
@@ -371,6 +373,16 @@ export async function initLibrary({
 
   function isDataResetError(error) {
     return error instanceof ValidationError && error.code === "data-reset";
+  }
+
+  function isUnrecoverableStateError(error) {
+    return error instanceof ValidationError && error.code === "state-unrecoverable";
+  }
+
+  function setUnrecoverableStateResetAvailable(available) {
+    unrecoverableStateResetAvailable = available;
+    elements.clearUnrecoverableData.hidden = !available;
+    elements.clearUnrecoverableData.disabled = !available;
   }
 
   async function assertCurrentDataEpoch(expectedEpoch = dataEpoch) {
@@ -2285,7 +2297,9 @@ export async function initLibrary({
 
   function renderResetMessage() {
     if (!state) {
-      elements.resetMessage.textContent = "The library is not available.";
+      elements.resetMessage.textContent = unrecoverableStateResetAvailable
+        ? "Saved note data is damaged and cannot be opened. Clearing it will let Lecture Notes start again. A backup cannot be made from unreadable data."
+        : "The library is not available.";
       return;
     }
     const activeCount = state.notes.length;
@@ -2298,7 +2312,8 @@ export async function initLibrary({
     const busy = resetInFlight || resetExportInFlight;
     elements.confirmReset.disabled = busy || !confirmed;
     elements.cancelReset.disabled = busy;
-    elements.resetExport.disabled = busy;
+    elements.resetExport.disabled = busy || resetSnapshot?.unrecoverable === true;
+    elements.resetExport.hidden = resetSnapshot?.unrecoverable === true;
     elements.resetConfirmation.disabled = busy;
     elements.resetForm.setAttribute("aria-busy", String(busy));
   }
@@ -2310,7 +2325,12 @@ export async function initLibrary({
           revision: state.revision,
           state: resetStateSignature(),
         }
-      : null;
+      : unrecoverableStateResetAvailable
+        ? {
+            epoch: dataEpoch,
+            unrecoverable: true,
+          }
+        : null;
     renderResetMessage();
   }
 
@@ -2333,7 +2353,7 @@ export async function initLibrary({
   }
 
   function openResetDialog(trigger) {
-    if (!ready || !state) {
+    if ((!ready || !state) && !unrecoverableStateResetAvailable) {
       return;
     }
     resetReturnFocus = trigger || elements.clearLocalData;
@@ -2597,6 +2617,7 @@ export async function initLibrary({
     resetReturnFocus = null;
     resetInFlight = false;
     resetExportInFlight = false;
+    setUnrecoverableStateResetAvailable(false);
     setLibraryAvailable(false);
     for (const dialog of documentValue.querySelectorAll("dialog[open]")) {
       closeDialog(dialog);
@@ -2731,7 +2752,8 @@ export async function initLibrary({
     try {
       await resetAllData(storage, {
         expectedEpoch: reviewed.epoch,
-        expectedRevision: reviewed.revision,
+        expectedRevision: reviewed.unrecoverable ? undefined : reviewed.revision,
+        expectedUnrecoverableState: reviewed.unrecoverable === true,
       });
       enterConsentGateAfterReset(
         "Local notes, drafts, settings, pending captures, and recovery data were cleared. Allow local note capture to start again.",
@@ -3585,6 +3607,9 @@ export async function initLibrary({
   elements.clearLocalData.addEventListener("click", (event) =>
     openResetDialog(event.currentTarget),
   );
+  elements.clearUnrecoverableData.addEventListener("click", (event) =>
+    openResetDialog(event.currentTarget),
+  );
   elements.manageCourses.addEventListener("click", openManageCoursesDialog);
   elements.search.addEventListener("input", () => {
     if (searchTimer !== null) {
@@ -4271,8 +4296,10 @@ export async function initLibrary({
           hideUndo();
         }
         state = nextState;
+        setUnrecoverableStateResetAvailable(false);
         applyTheme(state.settings.theme, documentValue);
         render();
+        setLibraryAvailable(true);
         if (pendingImport) {
           renderImportPreview();
           if (
@@ -4376,6 +4403,7 @@ export async function initLibrary({
     const loadGeneration = ++consentGeneration;
     const loadEpoch = dataEpoch;
     setLibraryAvailable(false);
+    setUnrecoverableStateResetAvailable(false);
     elements.retryLoad.hidden = true;
     elements.retryLoad.textContent = "Retry";
     elements.summary.textContent = "Loading notes...";
@@ -4409,6 +4437,7 @@ export async function initLibrary({
         return;
       }
       state = loadedState;
+      setUnrecoverableStateResetAvailable(false);
       editorDraftRecord = loadedEditorDraft;
       editorDraftUnavailable = loadedEditorDraftUnavailable;
       recoveryInfo = loadedRecovery;
@@ -4447,7 +4476,12 @@ export async function initLibrary({
       } else {
         state = undefined;
         setLibraryAvailable(false);
-        setStatus(elements.status, `Notes could not be loaded: ${errorMessage(error)}`, "error");
+        const canClearDamagedData = isUnrecoverableStateError(error);
+        setUnrecoverableStateResetAvailable(canClearDamagedData);
+        const detail = canClearDamagedData
+          ? "Saved note data is damaged and cannot be recovered. Retry, or clear the damaged data to start again."
+          : `Notes could not be loaded: ${errorMessage(error)}`;
+        setStatus(elements.status, detail, "error");
         elements.summary.textContent = "Library unavailable";
         elements.retryLoad.hidden = false;
       }
