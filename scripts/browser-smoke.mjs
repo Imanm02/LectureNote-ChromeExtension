@@ -307,6 +307,50 @@ async function createPersianNote(page) {
   await page.locator("#libraryStatus").filter({ hasText: "Note saved" }).waitFor();
 }
 
+async function assertToolbarControlsAligned(page) {
+  const originalViewport = page.viewportSize();
+  const readControls = () => page.locator(
+    "#searchInput, #courseFilter, #sortSelect, #themeSelect",
+  ).evaluateAll((elements) => Object.fromEntries(elements.map((element) => {
+    const bounds = element.getBoundingClientRect();
+    return [element.id, {
+      top: bounds.top,
+      left: bounds.left,
+      right: bounds.right,
+      height: bounds.height,
+    }];
+  })));
+  const spread = (values) => Math.max(...values) - Math.min(...values);
+  const controls = await readControls();
+  const topEdges = Object.values(controls).map(({ top }) => top);
+  const heights = Object.values(controls).map(({ height }) => height);
+
+  assert.ok(
+    spread(topEdges) <= 1,
+    `Library toolbar controls are not aligned: ${JSON.stringify(controls)}`,
+  );
+  assert.ok(
+    spread(heights) <= 1,
+    `Library toolbar controls have inconsistent heights: ${JSON.stringify(controls)}`,
+  );
+
+  await page.setViewportSize({ width: 800, height: originalViewport.height });
+  const tabletControls = await readControls();
+  assert.ok(
+    Math.abs(tabletControls.courseFilter.top - tabletControls.sortSelect.top) <= 1,
+    `Tablet toolbar controls are not aligned: ${JSON.stringify(tabletControls)}`,
+  );
+
+  await page.setViewportSize({ width: 520, height: originalViewport.height });
+  const mobileControls = await readControls();
+  assert.ok(
+    spread(Object.values(mobileControls).map(({ left }) => left)) <= 1 &&
+      spread(Object.values(mobileControls).map(({ right }) => right)) <= 1,
+    `Mobile toolbar controls do not share an edge: ${JSON.stringify(mobileControls)}`,
+  );
+  await page.setViewportSize(originalViewport);
+}
+
 async function captureMenuExists(page) {
   return page.evaluate(() => new Promise((resolveCheck) => {
     globalThis.chrome.contextMenus.update(
@@ -475,6 +519,7 @@ try {
   await waitForCaptureMenu(library, true);
   await library.getByRole("heading", { name: "Graph basics" }).waitFor();
   assert.equal(await library.locator(".note-card").count(), 1);
+  await assertToolbarControlsAligned(library);
 
   await createPersianNote(library);
   await library.locator("#searchInput").fill("رياضى ويژه");

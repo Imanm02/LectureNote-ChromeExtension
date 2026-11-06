@@ -38,7 +38,7 @@
   display: grid;
   grid-template-columns: minmax(240px, 2fr) repeat(3, minmax(150px, 1fr));
   gap: var(--space-3);
-  align-items: end;
+  align-items: start;
   padding: var(--space-4);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
