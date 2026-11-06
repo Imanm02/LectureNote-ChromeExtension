@@ -310,7 +310,7 @@ async function createPersianNote(page) {
 async function assertToolbarControlsAligned(page) {
   const originalViewport = page.viewportSize();
   const readControls = () => page.locator(
-    "#searchInput, #courseFilter, #sortSelect, #themeSelect",
+    "#searchInput, #courseFilter, #manageCoursesButton, #sortSelect, #themeSelect",
   ).evaluateAll((elements) => Object.fromEntries(elements.map((element) => {
     const bounds = element.getBoundingClientRect();
     return [element.id, {
@@ -332,6 +332,14 @@ async function assertToolbarControlsAligned(page) {
   assert.ok(
     spread(heights) <= 1,
     `Library toolbar controls have inconsistent heights: ${JSON.stringify(controls)}`,
+  );
+  assert.equal(
+    await page.locator("#notesList").evaluate((notesList) => Boolean(
+      notesList.compareDocumentPosition(globalThis.document.querySelector("#storageUsage")) &
+        globalThis.Node.DOCUMENT_POSITION_FOLLOWING
+    )),
+    true,
+    "Library tools must follow the note list",
   );
 
   await page.setViewportSize({ width: 800, height: originalViewport.height });

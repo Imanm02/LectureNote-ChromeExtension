@@ -56,18 +56,20 @@
     <main id="libraryMain" class="library-shell" aria-busy="true">
       <section class="toolbar" aria-label="Find and sort notes">
         <label class="field search-field" for="searchInput">
-          <span class="label-row"><span>Search notes</span><span class="key-hint" aria-hidden="true">/</span></span>
+          <span class="label-row"><span class="field-label">Search notes</span><span class="key-hint" aria-hidden="true">/</span></span>
           <input id="searchInput" type="search" autocomplete="off" placeholder="Title, text, course, or source" disabled>
         </label>
         <div class="field course-filter-field">
-          <label for="courseFilter">Course</label>
-          <select id="courseFilter" disabled>
-            <option value="">All courses</option>
-          </select>
-          <button id="manageCoursesButton" class="button button-quiet compact" type="button" disabled>Manage courses</button>
+          <label class="field-label" for="courseFilter">Course</label>
+          <div class="course-filter-controls">
+            <select id="courseFilter" disabled>
+              <option value="">All courses</option>
+            </select>
+            <button id="manageCoursesButton" class="button button-secondary" type="button" aria-label="Manage courses" disabled>Manage</button>
+          </div>
         </div>
         <label class="field" for="sortSelect">
-          <span>Sort</span>
+          <span class="field-label">Sort</span>
           <select id="sortSelect" disabled>
             <option value="updated-desc">Recently updated</option>
             <option value="created-desc">Newest created</option>
@@ -76,7 +78,7 @@
           </select>
         </label>
         <label class="field" for="themeSelect">
-          <span>Theme</span>
+          <span class="field-label">Theme</span>
           <select id="themeSelect" disabled>
             <option value="system">System</option>
             <option value="light">Light</option>
@@ -119,37 +121,6 @@
           </div>
           <button id="cancelSelectionButton" class="button button-quiet compact" type="button">Done selecting</button>
         </div>
-      </section>
-
-      <section class="library-actions" aria-label="Backup and restore notes">
-        <button id="exportJsonButton" class="button button-secondary" type="button" disabled>Export backup</button>
-        <button id="exportMarkdownButton" class="button button-secondary" type="button" disabled>Export view as Markdown</button>
-        <button id="importButton" class="button button-secondary" type="button" disabled>Restore backup</button>
-        <input id="importFileInput" type="file" accept="application/json,.json" hidden>
-      </section>
-
-      <section id="storageUsage" class="storage-usage" aria-labelledby="storageUsageHeading">
-        <div class="storage-usage-copy">
-          <h2 id="storageUsageHeading">Local storage</h2>
-          <p id="storageUsageText">Calculating library size...</p>
-        </div>
-        <meter id="storageUsageMeter" min="0" max="10485760" value="0" aria-labelledby="storageUsageHeading storageUsageText">0 of 10 MB</meter>
-        <p id="storageUsageWarning" class="storage-usage-warning" role="status" aria-live="polite" aria-atomic="true" hidden></p>
-      </section>
-
-      <section class="data-privacy" aria-labelledby="dataPrivacyHeading">
-        <div class="data-privacy-copy">
-          <h2 id="dataPrivacyHeading">Data and privacy</h2>
-          <p>Notes and preferences stay in this Chrome profile. You can export a backup or clear local note data and preferences here.</p>
-          <label class="share-source-setting" for="includeSourceOnShare">
-            <input id="includeSourceOnShare" type="checkbox" aria-describedby="includeSourceOnShareHint" disabled>
-            <span>
-              Include source details in copied notes and Markdown
-              <small id="includeSourceOnShareHint">JSON backups always include sources so they can be restored.</small>
-            </span>
-          </label>
-        </div>
-        <button id="clearLocalDataButton" class="button button-quiet danger-text" type="button" disabled>Clear local data</button>
       </section>
 
       <div class="library-feedback">
@@ -196,6 +167,44 @@
 
       <section id="notesList" class="notes-grid" aria-label="Saved notes"></section>
       <button id="showMoreButton" class="button button-secondary show-more" type="button" hidden>Show more notes</button>
+
+      <div class="library-tools">
+        <div class="library-tools-heading">
+          <h2>Library tools</h2>
+          <p>Back up, restore, and manage data stored in this Chrome profile.</p>
+        </div>
+
+        <section class="library-actions" aria-label="Backup and restore notes">
+          <button id="exportJsonButton" class="button button-secondary" type="button" disabled>Export backup</button>
+          <button id="exportMarkdownButton" class="button button-secondary" type="button" disabled>Export view as Markdown</button>
+          <button id="importButton" class="button button-secondary" type="button" disabled>Restore backup</button>
+          <input id="importFileInput" type="file" accept="application/json,.json" hidden>
+        </section>
+
+        <section id="storageUsage" class="storage-usage" aria-labelledby="storageUsageHeading">
+          <div class="storage-usage-copy">
+            <h2 id="storageUsageHeading">Local storage</h2>
+            <p id="storageUsageText">Calculating library size...</p>
+          </div>
+          <meter id="storageUsageMeter" min="0" max="10485760" value="0" aria-labelledby="storageUsageHeading storageUsageText">0 of 10 MB</meter>
+          <p id="storageUsageWarning" class="storage-usage-warning" role="status" aria-live="polite" aria-atomic="true" hidden></p>
+        </section>
+
+        <section class="data-privacy" aria-labelledby="dataPrivacyHeading">
+          <div class="data-privacy-copy">
+            <h2 id="dataPrivacyHeading">Data and privacy</h2>
+            <p>Notes and preferences stay in this Chrome profile. You can export a backup or clear local note data and preferences here.</p>
+            <label class="share-source-setting" for="includeSourceOnShare">
+              <input id="includeSourceOnShare" type="checkbox" aria-describedby="includeSourceOnShareHint" disabled>
+              <span>
+                Include source details in copied notes and Markdown
+                <small id="includeSourceOnShareHint">JSON backups always include sources so they can be restored.</small>
+              </span>
+            </label>
+          </div>
+          <button id="clearLocalDataButton" class="button button-quiet danger-text" type="button" disabled>Clear local data</button>
+        </section>
+      </div>
     </main>
 
     <template id="noteCardTemplate">
