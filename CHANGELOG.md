@@ -6,6 +6,39 @@ This file records user-facing changes to Lecture Notes.
 
 No user-facing changes yet.
 
+## 2.1.4 - 2026-11-06
+
+### Changed
+
+- Moved backup, storage, and privacy tools below the note list so saved notes appear sooner.
+- Aligned every library toolbar control and placed course management beside its filter.
+- Refreshed the Store screenshots and README presentation to match the shipped library.
+
+### Fixed
+
+- Added a confirmed recovery path for local state that is too damaged to open.
+- Kept repaired or upgraded state safe when a stale damaged-data reset is submitted.
+- Showed the correct queue-full message when context-menu captures reach their limit.
+
+### Security
+
+- Refused context-menu capture from editable fields before Chrome-supplied text is read.
+- Expanded source URL cleanup for CSRF, XSRF, request-verification, nonce, password, and PKCE verifier parameters.
+
+### Maintenance
+
+- Added local Node and npm version checks to the preflight gate.
+- Prevented package and screenshot builds from reusing a version tagged on another commit.
+- Kept release checks local with GitHub Actions disabled.
+
+### Validation
+
+- Added regression coverage for editable-field capture, sensitive URL parameters, damaged-state recovery, toolbar geometry, tool placement, and release guards.
+- Passed 346 automated tests with 87.44% line coverage, 81.42% branch coverage, and 89.93% function coverage.
+- Passed the dependency audit, ESLint, manifest validation, Chromium product smoke tests, stable Chrome action tests, package validation, and both packaged browser tests.
+- Validated the deterministic 23-file `lecture-notes-2.1.4.zip` package.
+- Recorded SHA-256 `5e031508d90926694e7265f26cf6a7ddcc6e75f8c1dfa1a41b399911a1bea80f`.
+
 ## 2.1.3 - 2026-11-05
 
 ### Maintenance
