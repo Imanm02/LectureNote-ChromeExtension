@@ -1,32 +1,42 @@
-# Lecture Notes
+<p align="center">
+  <img src="store-assets/small-promo.png" width="440" alt="Lecture Notes extension logo and name">
+</p>
 
-I built Lecture Notes because I wanted a quick way to save useful material from lecture pages without sending my notes to a remote service. It captures selected text with its page context, keeps notes organized in Chrome, and gives me local backup and export tools.
+<h1 align="center">Lecture Notes</h1>
 
-The extension uses plain HTML, CSS, and JavaScript modules. It has no runtime dependencies, remote scripts, account system, or source build step.
+<p align="center">
+  Capture useful material from the web, keep its source, and build a searchable study library inside Chrome.
+</p>
+
+<p align="center">
+  <strong>Manifest V3</strong> &nbsp;•&nbsp; <strong>Local-only data</strong> &nbsp;•&nbsp; <strong>No account</strong> &nbsp;•&nbsp; <strong>No network requests</strong>
+</p>
+
+<p align="center">
+  <a href="#install-in-chrome">Install</a> ·
+  <a href="#capture-notes">Capture notes</a> ·
+  <a href="#permissions-and-privacy">Privacy</a> ·
+  <a href="#development">Development</a> ·
+  <a href="#current-limitations">Limitations</a>
+</p>
+
+<p align="center">
+  <img src="store-assets/screenshots/01-library-overview.png" alt="Lecture Notes library with search, course filtering, local storage details, and note cards">
+</p>
+
+<p align="center"><sub>The note library keeps search, course filters, exports, storage status, and note actions in one view.</sub></p>
+
+I built Lecture Notes because I wanted a quick way to save useful material from lecture pages without sending my notes to a remote service. The extension uses plain HTML, CSS, and JavaScript modules. It has no runtime dependencies, remote scripts, account system, or source build step.
 
 ## What it does
 
-- Captures selected text from the toolbar, a keyboard shortcut, or the selection context menu.
-- Requires a clear first-use choice before it reads page details or handles note data.
-- Reads a selection from the focused embedded frame when Chrome allows it, and ignores password-field selections.
-- Keeps the page title and a cleaned HTTP or HTTPS source URL with the draft. The source can be removed and restored before saving.
-- Supports manual notes on protected pages where Chrome blocks selection access.
-- Autosaves unfinished quick-capture and full-editor work, then offers recovery when the page reopens.
-- Queues context-menu captures locally so a pending selection is not lost while the popup opens.
-- Shows the three most recently updated notes in quick capture for immediate review.
-- Opens the searchable library in a full tab or Chrome's side panel.
-- Searches titles, note text, courses, and sources using words in any order, with Persian and Arabic letter matching.
-- Filters by course, keeps active filters visible, and sorts by update time, creation time, or title.
-- Manages a course label across active notes and Trash by renaming, merging, or clearing it.
-- Shows note details, supports editing and copying, and warns about likely duplicates.
-- Moves deleted notes to persistent Trash, with restore, permanent delete, and Empty Trash controls.
-- Applies course, export, Trash, restore, and permanent-delete actions to selected notes.
-- Exports a full JSON backup, restores with a preview, and supports Merge or Replace modes.
-- Exports the current filtered view or selected active notes as Markdown.
-- Lets me omit source details from copied text and Markdown while retaining sources in restorable JSON backups.
-- Shows total local-storage use and the separate note-library record limit.
-- Clears local note data and preferences through a reviewed, typed confirmation flow with an option to export first.
-- Supports system, light, and dark themes, keyboard use, RTL content, and Unicode text.
+- Captures selected text from the toolbar, a keyboard shortcut, or the selection context menu, including focused embedded frames when Chrome allows access.
+- Keeps a cleaned page title and HTTP or HTTPS source with each draft, while supporting manual notes on protected pages.
+- Autosaves quick-capture and full-editor work, queues pending context-menu captures, and recovers unfinished drafts without replacing newer notes.
+- Provides a searchable library with course filtering, sorting, course management, duplicate warnings, full-tab and side-panel views, and Persian and Arabic letter matching.
+- Protects deleted work with persistent Trash and supports bulk course, export, Trash, restore, and permanent-delete actions.
+- Exports restorable JSON backups or Markdown, lets copied text omit source details, and supports local data reset with an export-first option.
+- Supports system, light, and dark themes, keyboard navigation, RTL content, and Unicode text.
 
 Markdown is an export format. Notes are stored and edited as plain text.
 
@@ -60,7 +70,7 @@ To install the current source instead, clone the repository and choose that fold
    git clone https://github.com/Imanm02/LectureNote-ChromeExtension.git
    ```
 
-After pulling a source update, return to `chrome://extensions` and select **Reload** on the extension card.
+Before updating an unpacked installation, export a JSON backup. Replace the files inside the same installed folder, then return to `chrome://extensions` and select **Reload** on the extension card. Loading the extension from a different folder can create a separate extension identity with separate local storage.
 
 The first popup or library page shows the local-data disclosure before notes, drafts, page details, or selections are read. Choose **Allow local note capture** to continue. Closing the surface leaves the choice unaccepted. Existing extension data can be cleared from that disclosure without opening it first.
 
@@ -79,6 +89,12 @@ Chrome blocks scripted page access on internal pages, the Chrome Web Store, and 
 ## Use the library
 
 The library can open beside the current page in Chrome's side panel or in a full tab. It supports search, course filtering, sorting, note details, editing, and theme preferences.
+
+<p align="center">
+  <img src="store-assets/screenshots/03-note-editor.png" alt="Lecture Notes editor showing a Persian note, course field, and save controls">
+</p>
+
+<p align="center"><sub>The full editor supports long notes, keyboard saving, Unicode text, and right-to-left writing.</sub></p>
 
 Search text and a selected course remain visible in an active-filter bar, even when matches are present. Use **Clear filters** to return to the full view.
 
@@ -169,6 +185,7 @@ Available checks:
 | `npm run test:coverage` | Run tests with the committed coverage floors |
 | `npm run check:extension` | Validate the manifest, permissions, packaged resources, syntax, unsafe sinks, network calls, and credential patterns |
 | `npm run validate` | Run lint, tests, and extension validation |
+| `npm run preflight` | Run the audit, lint, coverage, and extension checks before browser testing |
 | `npm run test:browser` | Load the source extension in Playwright Chromium and exercise its main flows |
 | `npm run test:browser:chrome` | Trigger the real toolbar action in stable Chrome and verify focused-frame capture and storage |
 | `npm run package:extension` | Create the release ZIP and SHA-256 checksum in `dist/` |
