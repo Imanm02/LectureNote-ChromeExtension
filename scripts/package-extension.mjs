@@ -6,7 +6,9 @@ import {
   checksumFileContents,
   projectRoot,
 } from "./release-package.mjs";
+import { assertReleaseTagAvailable } from "./release-guards.mjs";
 
+await assertReleaseTagAvailable(projectRoot);
 const release = buildExtensionPackage();
 const outputDirectory = join(projectRoot, "dist");
 const archivePath = join(outputDirectory, release.archiveName);

@@ -26,6 +26,7 @@ import {
   STORE_SCREENSHOT_HEIGHT,
   STORE_SCREENSHOT_WIDTH,
 } from "./store-screenshot-utils.mjs";
+import { assertReleaseTagAvailable } from "./release-guards.mjs";
 
 const storeAssetsDirectory = join(projectRoot, "store-assets");
 const screenshotDirectory = join(storeAssetsDirectory, "screenshots");
@@ -653,6 +654,7 @@ async function capturePackagedExtension(extensionRoot, outputDirectory) {
 }
 
 export async function generateStoreScreenshots() {
+  await assertReleaseTagAvailable(projectRoot);
   const release = buildExtensionPackage();
   const initialArchive = release.archive;
   const stagingDirectory = await createScreenshotStage();

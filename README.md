@@ -182,6 +182,7 @@ Available checks:
 
 | Command | Purpose |
 | --- | --- |
+| `npm run check:environment` | Reject Node or npm versions outside the supported release toolchain |
 | `npm run lint` | Check source, tests, and scripts with ESLint |
 | `npm test` | Run Node unit, integration, and DOM tests |
 | `npm run test:coverage` | Run tests with the committed coverage floors |
@@ -192,6 +193,7 @@ Available checks:
 | `npm run test:browser:chrome` | Trigger the real toolbar action in stable Chrome and verify focused-frame capture and storage |
 | `npm run package:extension` | Create the release ZIP and SHA-256 checksum in `dist/` |
 | `npm run check:package` | Inspect the ZIP allowlist and validate the packaged extension |
+| `npm run check:release` | Refuse a package version whose Git tag belongs to another commit |
 | `npm run test:browser:package` | Extract the release ZIP and smoke-test the packaged extension |
 | `npm run test:browser:chrome:package` | Extract the ZIP and test its toolbar action in stable Chrome |
 | `npm run store:screenshots` | Build the exact ZIP and create four 1280 by 800 Store screenshots from it |

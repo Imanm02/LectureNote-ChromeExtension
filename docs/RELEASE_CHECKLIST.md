@@ -7,6 +7,7 @@ Lecture Notes does not use GitHub Actions. Complete every release check on a tru
 - [ ] Start from `main` with no uncommitted files.
 - [ ] Fetch `origin` and confirm local `main` matches `origin/main`.
 - [ ] Use a Node version accepted by `package.json`.
+- [ ] Run `npm run check:environment` and confirm the local Node and npm versions pass.
 - [ ] Run `npm ci` from the committed lockfile.
 - [ ] Install GitHub CLI, run `gh auth status`, and confirm it is signed in to the release account.
 - [ ] Confirm the release contains no credentials, personal data, browser profiles, logs, or test downloads.
@@ -25,6 +26,7 @@ node -e "const fs=require('node:fs'); for (const file of ['manifest.json','packa
 ```
 
 Do not create the tag until the exact package has passed the checks below.
+The package and screenshot commands refuse to reuse a version whose local Git tag points to another commit.
 
 ## Run local checks
 
