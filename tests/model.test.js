@@ -956,12 +956,17 @@ test("ignores imported prototype keys and rebuilds allowed fields", () => {
       "id": "note-1",
       "title": "Safe",
       "body": "Text",
+      "source": {
+        "title": "Imported source",
+        "url": "https://example.com/lesson?chapter=2&csrf_token=private&nonce=private"
+      },
       "__proto__": {"polluted": true}
     }]
   }`;
   const restored = parseBackup(text, { idFactory: () => "unused", now: START });
 
   assert.equal(restored.notes[0].title, "Safe");
+  assert.equal(restored.notes[0].source.url, "https://example.com/lesson?chapter=2");
   assert.equal(Object.prototype.polluted, undefined);
   assert.equal("polluted" in restored.notes[0], false);
 });
@@ -1036,7 +1041,7 @@ test("removes secrets from valid editor draft source URLs", () => {
     {
       body: "Pending note",
       source: {
-        url: "https://student:password@example.com/lesson?chapter=2&token=secret&utm_source=mail#answers",
+        url: "https://student:password@example.com/lesson?chapter=2&token=secret&utm_source=mail&csrfmiddlewaretoken=csrf&xsrf_token=xsrf&nonce=once#answers",
       },
     },
     { now: START },

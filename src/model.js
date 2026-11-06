@@ -170,7 +170,7 @@ function normalizeTimestamp(value, fallback) {
   return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : fallback;
 }
 
-const SENSITIVE_QUERY_PARAMETER = /^(?:(?:access|auth|id|oauth|refresh|session)_?token|api_?key|auth|authorization|client_?secret|code|credential|fbclid|gclid|jsessionid|jwt|key|msclkid|pass|password|samlresponse|secret|session|session_?id|sig|signature|state|token|utm_.+|x-(?:amz|goog)-(?:credential|security-token|signature))$/iu;
+const SENSITIVE_QUERY_PARAMETER = /^(?:(?:access|auth|id|oauth|refresh|session)_?token|_*(?:(?:x[-_]|anti[-_]?)?csrf(?:middleware)?|xsrf)(?:[_-]?token)?|_*request[_-]?verification[_-]?token|api_?key|auth|authenticity[_-]?token|authorization|client_?secret|code|code_?verifier|credential|fbclid|gclid|jsessionid|jwt|key|msclkid|nonce|pass(?:wd|word)?|pwd|samlresponse|secret|session|session_?id|sig|signature|state|token|utm_.+|x-(?:amz|goog)-(?:credential|security-token|signature))$/iu;
 
 function sanitizeParsedUrl(parsed) {
   parsed.username = "";

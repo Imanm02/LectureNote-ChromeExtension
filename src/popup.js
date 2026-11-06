@@ -25,11 +25,15 @@ import {
 import { listCourses, selectNotes } from "./selectors.js";
 import { applyTheme, formatDate, setStatus } from "./ui.js";
 
+const CAPTURE_QUEUE_FULL_MESSAGE =
+  "The capture queue is full. Use or discard a waiting capture before trying again.";
 const CAPTURE_ERROR_MESSAGES = Object.freeze({
-  "pending-capture-limit":
-    "The capture queue is full. Use or discard a waiting capture before trying again.",
+  "pending-capture-limit": CAPTURE_QUEUE_FULL_MESSAGE,
+  "pending-capture-full": CAPTURE_QUEUE_FULL_MESSAGE,
   "pending-capture-size":
     "The capture queue has no space for that selection. Use or discard a waiting capture before trying again.",
+  "editable-selection":
+    "The context-menu command does not capture text from editable fields. Use the toolbar for a non-password text field.",
   "capture-failed":
     "Lecture Notes could not queue the selected text. Copy it from the page before trying again.",
 });

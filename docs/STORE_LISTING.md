@@ -62,7 +62,7 @@ Paste the matching explanation into each permission field.
 
 ### `contextMenus`
 
-> Adds one menu item for selected text: "Capture selection in Lecture Notes." The item is registered only after the first-use data choice. Chrome supplies that user-selected text to the extension after the user chooses the menu item. The menu is not shown for other contexts.
+> Adds one menu item for selected text: "Capture selection in Lecture Notes." The item is registered only after the first-use data choice. Chrome supplies that user-selected text to the extension after the user chooses the menu item. The extension refuses context-menu selections from editable fields because Chrome does not identify the field type to extensions.
 
 ### `scripting`
 

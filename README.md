@@ -86,6 +86,8 @@ After saving, quick capture clears the note text but keeps the current page sour
 
 Chrome blocks scripted page access on internal pages, the Chrome Web Store, and some other protected pages. Quick capture still opens there so a note can be entered manually.
 
+For privacy, the selection context menu does not capture text from editable fields. Use the toolbar or keyboard shortcut for an ordinary text input. Password fields are never captured.
+
 ## Use the library
 
 The library can open beside the current page in Chrome's side panel or in a full tab. It supports search, course filtering, sorting, note details, editing, and theme preferences.
@@ -136,7 +138,7 @@ Chrome may decline the suggested capture shortcut if another extension already u
 | Permission | Why it is needed |
 | --- | --- |
 | `activeTab` | Grants temporary page access after a toolbar or keyboard capture action |
-| `contextMenus` | Adds one selection command for sending user-selected text to quick capture |
+| `contextMenus` | Adds one selection command for sending page selections to quick capture while refusing editable fields |
 | `scripting` | Runs the packaged selection reader in the active tab and focused frame |
 | `sidePanel` | Opens the note library beside the current page |
 | `storage` | Saves notes, Trash, settings, the first-use consent choice, drafts, pending captures, and recovery records in `chrome.storage.local` |

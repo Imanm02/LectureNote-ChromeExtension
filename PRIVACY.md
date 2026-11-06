@@ -16,7 +16,7 @@ Lecture Notes may handle the following information after you invoke capture or e
 - Theme, sort, source-sharing, help, onboarding, and data-consent preferences.
 - Counts and timestamps related to rejected data found during local recovery.
 
-The extension ignores selections made in password fields. It accepts saved source URLs only when they use HTTP or HTTPS. Before storage, it removes URL credentials, fragments, and query parameters that match known authentication or tracking names. Other page paths and query parameters may still contain private information. Review source details before saving or sharing a note.
+Toolbar and keyboard capture ignore selections made in password fields. The context-menu command refuses selections from every editable field because Chrome does not identify the field type to extensions. It accepts saved source URLs only when they use HTTP or HTTPS. Before storage, it removes URL credentials, fragments, and query parameters that match known authentication or tracking names. Other page paths and query parameters may still contain private information. Review source details before saving or sharing a note.
 
 ## How the data is used
 

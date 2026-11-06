@@ -252,7 +252,7 @@ test("acknowledges only the recovery notice that was reviewed", async () => {
 test("rejects strict invalid URLs and redacts captured source details", () => {
   const captured = normalizeSource({
     title: "Lecture page",
-    url: "https://student:password@example.com/watch?id=42&course=cs101&utm_source=mail&token=secret&id_token=jwt&refresh_token=refresh&oauth_token=oauth&auth_token=auth&client_secret=private&jwt=signed&JSESSIONID=session&X-Amz-Security-Token=aws&lang=fa#answer",
+    url: "https://student:password@example.com/watch?id=42&course=cs101&utm_source=mail&token=secret&id_token=jwt&refresh_token=refresh&oauth_token=oauth&auth_token=auth&client_secret=private&jwt=signed&JSESSIONID=session&X-Amz-Security-Token=aws&csrf_token=csrf&xsrf-token=xsrf&_csrf=short&authenticity_token=authenticity&nonce=once&__RequestVerificationToken=request&pwd=one&passwd=two&code_verifier=three&lang=fa#answer",
   });
 
   assert.deepEqual(captured, {

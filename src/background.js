@@ -241,6 +241,12 @@ export async function captureContextSelection(
       "consent-required",
     );
   }
+  if (info?.editable === true) {
+    throw new ValidationError(
+      "Context-menu capture is unavailable for editable fields.",
+      "editable-selection",
+    );
+  }
   const selection = normalizeContextSelection(info?.selectionText);
   if (!selection.text) {
     return { saved: false, reason: "empty-selection", wasTruncated: false };

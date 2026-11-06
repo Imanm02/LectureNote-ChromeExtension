@@ -809,6 +809,43 @@ test("does not open an editor for an empty context-menu selection", async () => 
   assert.equal(opened, false);
 });
 
+test("refuses context-menu capture from editable fields without reading text", async () => {
+  const storage = memoryStorage();
+  let selectionRead = false;
+  let opened = "";
+  const info = {
+    menuItemId: CAPTURE_CONTEXT_MENU_ID,
+    editable: true,
+  };
+  Object.defineProperty(info, "selectionText", {
+    get() {
+      selectionRead = true;
+      return "Private editable text";
+    },
+  });
+
+  const result = await handleContextMenuClick(info, {}, {
+    storage: { local: storage },
+    runtime: { getURL: (path) => `chrome-extension://test/${path}` },
+    windows: {
+      async create(options) {
+        opened = options.url;
+      },
+    },
+  });
+
+  assert.equal(result.handled, true);
+  assert.equal(result.capture.saved, false);
+  assert.equal(result.capture.reason, "editable-selection");
+  assert.equal(result.surface, "popup-window");
+  assert.equal(
+    opened,
+    "chrome-extension://test/popup.html?captureError=editable-selection",
+  );
+  assert.equal(selectionRead, false);
+  assert.deepEqual(await loadPendingCaptures(storage), []);
+});
+
 test("opens an error surface when a context capture cannot be queued", async () => {
   const storage = memoryStorage();
   storage.set = async () => {
